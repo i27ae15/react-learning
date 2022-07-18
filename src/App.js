@@ -1,9 +1,55 @@
 import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
-// import logo from './logo.svg';
+import CardList from './components/card-list/card-list.component.jsx';
+import SearchBox from './components/search-box/search-box.component.jsx';
+
 import './App.css';
 
 const endpoint = 'https://jsonplaceholder.typicode.com/users';
+
+
+
+// we can creaet funcitional components instead of class components
+
+const AppFunct = () => {
+
+  // the entire functio will re-render everytime there is a change in the values that the function has
+
+  // we'll have to right other function here, inside the main function
+  const [searchField, setSearchField] = useState(); // [value, setValue]
+  const [monsters, setMonsters] = useState();
+
+  const onSearchChange = (event) => {
+
+    const searchFieldString = event.target.value.toLocaleLowerCase();
+    setSearchField(searchFieldString);
+  } 
+
+  const filteredMonstesrs = monsters.filter((m) => {
+    return m.name.toLocaleLowerCase().includes(searchField);
+  })
+
+  return (
+    <div className="App">
+
+      <h1 className='app-title'>Welcome everyone</h1>
+
+      <SearchBox 
+      onSearchChange={onSearchChange} 
+      className='monters-search-box'
+      placeholder={'Search monsters'}
+      />
+
+      {
+        // filtering and displaying the list of monsters
+        // we can pass properties to the CardList component
+      }
+      {/* <CardList monsters={monsters} filterBy={filterBy} /> */}
+
+    </div>
+  );
+}
 
 class App extends Component {
 
@@ -14,33 +60,68 @@ class App extends Component {
       // here we're going to set key par values
       this.state = {
         monsters: [],
+        filterBy: '',
      };
+
     }
 
+    // this will load when the component is loaded
     componentDidMount() {
       // fetch monsters from server
+      // the response is converted to a json object and the state is changed
+
       fetch(endpoint)
         .then((response) => response.json())
-        .then((users) => this.setState({monsters: users}))
+        .then((users) => this.setState( 
+         () => {
+
+          return {monsters: users};
+        
+        },
+        () => {
+
+          // return console.log(this.state);
+
+        }
+        ))
 
     }
 
-    render() {
+    onSearchChange = (event) => {
+
+      this.setState({filterBy: event.target.value});
+
+    } 
+
+    render() {    
+      
+      // initializing variables from this.state
+      const { monsters, filterBy } = this.state;
+      const { onSearchChange } = this;
+
       return (
         <div className="App">
 
+          <h1 className='app-title'>Welcome everyone</h1>
+
+          <SearchBox 
+          onSearchChange={onSearchChange} 
+          className='monters-search-box'
+          placeholder={'Search monsters'}
+          />
+
           {
-            this.state.monsters.map((monster) => {
-              return <h1 key={monster.id}>{monster.name}</h1>;
-            })
+            // filtering and displaying the list of monsters
+            // we can pass properties to the CardList component
           }
+          <CardList monsters={monsters} filterBy={filterBy} />
 
         </div>
       );
     }
 
 }
-export default App;
+export default AppFunct;
 
 
 // class App extends Component {
@@ -83,7 +164,7 @@ export default App;
 //           <button onClick={() => {
 //           //   this.setState({other_thing: 'This is another name'});
 //           //   // console.log(this.state)
-//           this.setState((state, props) =>{
+//             this.setState((state, props) =>{
 //             return other_thing = 'This is another thing';
 //           },
 //           () => {
